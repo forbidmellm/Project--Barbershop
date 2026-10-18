@@ -1,0 +1,987 @@
+openapi: 3.0.3
+info:
+  title: Barbershop API
+  version: 1.0.0
+  description: |
+    Контракт REST API учебной системы барбершопа. Спецификация описывает
+    обмен данными и бизнес-правила.
+servers:
+- url: /api/v1
+tags:
+- name: Users
+- name: Customers
+- name: Employees
+- name: Branches
+- name: Services
+- name: Barbers
+- name: Appointments
+paths:
+  /users:
+    get:
+      tags:
+      - Users
+      summary: Получить список пользователей
+      description: Возвращает все пользовательские профили системы.
+      responses:
+        '200':
+          description: Список пользователей
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      tags:
+      - Users
+      summary: Создать пользователя
+      description: Создаёт базовый профиль пользователя.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInput'
+      responses:
+        '201':
+          description: Пользователь создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /users/{userId}:
+    parameters:
+    - $ref: '#/components/parameters/UserId'
+    get:
+      tags:
+      - Users
+      summary: Получить пользователя
+      description: Возвращает профиль пользователя по его идентификатору.
+      responses:
+        '200':
+          description: Пользователь
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags:
+      - Users
+      summary: Изменить данные пользователя
+      description: Полностью заменяет изменяемые данные существующего пользователя.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInput'
+      responses:
+        '200':
+          description: Пользователь изменён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /customers:
+    post:
+      tags:
+      - Customers
+      summary: Создать профиль клиента
+      description: Создаёт клиентский профиль для пользователя. Профиль сотрудника у этого же пользователя допустим.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerInput'
+      responses:
+        '201':
+          description: Профиль клиента создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '409':
+          description: У пользователя уже существует профиль клиента.
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /customers/{customerId}:
+    parameters:
+    - $ref: '#/components/parameters/CustomerId'
+    get:
+      tags:
+      - Customers
+      summary: Получить профиль клиента
+      description: Возвращает профиль клиента по его идентификатору.
+      responses:
+        '200':
+          description: Профиль клиента
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /employees:
+    get:
+      tags:
+      - Employees
+      summary: Получить сотрудников
+      description: Возвращает сотрудников; список можно ограничить филиалом и ролью.
+      parameters:
+      - name: branchId
+        in: query
+        required: false
+        description: Идентификатор филиала, сотрудники которого должны быть возвращены.
+        schema:
+          type: integer
+          format: int64
+      - name: role
+        in: query
+        required: false
+        description: Внутренняя роль сотрудников, по которой фильтруется список.
+        schema:
+          type: string
+          enum:
+          - BARBER
+          - MANAGER
+          - ADMIN
+      responses:
+        '200':
+          description: Список сотрудников
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Employee'
+    post:
+      tags:
+      - Employees
+      summary: Добавить сотрудника
+      description: Создаёт профиль работы пользователя в конкретном филиале. Один пользователь может иметь профили сотрудника в нескольких филиалах.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeInput'
+      responses:
+        '201':
+          description: Сотрудник добавлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+        '409':
+          description: Для указанной пары пользователя и филиала уже существует профиль сотрудника.
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /employees/{employeeId}:
+    parameters:
+    - $ref: '#/components/parameters/EmployeeId'
+    get:
+      tags:
+      - Employees
+      summary: Получить сотрудника
+      description: Возвращает профиль сотрудника по идентификатору.
+      responses:
+        '200':
+          description: Сотрудник
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags:
+      - Employees
+      summary: Изменить данные сотрудника
+      description: Полностью заменяет изменяемые данные сотрудника, включая роль и график мастера.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeInput'
+      responses:
+        '200':
+          description: Сотрудник изменён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    delete:
+      tags:
+      - Employees
+      summary: Логически удалить сотрудника
+      description: Сотрудник получает статус `DELETED`; исторические записи сохраняются.
+      responses:
+        '204':
+          description: Сотрудник удалён
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /branches:
+    get:
+      tags:
+      - Branches
+      summary: Получить список филиалов
+      description: Возвращает актуальные филиалы барбершопа.
+      responses:
+        '200':
+          description: Список филиалов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Branch'
+    post:
+      tags:
+      - Branches
+      summary: Создать филиал
+      description: Добавляет новый филиал барбершопа.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BranchInput'
+      responses:
+        '201':
+          description: Филиал создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /branches/{branchId}:
+    parameters:
+    - $ref: '#/components/parameters/BranchId'
+    get:
+      tags:
+      - Branches
+      summary: Получить филиал
+      description: Возвращает данные конкретного филиала.
+      responses:
+        '200':
+          description: Филиал
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags:
+      - Branches
+      summary: Изменить филиал
+      description: Полностью заменяет изменяемые данные филиала.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BranchInput'
+      responses:
+        '200':
+          description: Филиал изменён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+      - Branches
+      summary: Логически удалить филиал
+      description: Филиал получает статус `DELETED`; исторические записи сохраняются.
+      responses:
+        '204':
+          description: Филиал удалён
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /services:
+    get:
+      tags:
+      - Services
+      summary: Получить услуги филиала
+      description: Возвращает услуги, доступные в указанном филиале.
+      parameters:
+      - name: branchId
+        in: query
+        required: true
+        description: Идентификатор филиала, услуги которого требуется получить.
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Список услуг
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service'
+    post:
+      tags:
+      - Services
+      summary: Создать услугу в филиале
+      description: Добавляет услугу в каталог указанного филиала.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceInput'
+      responses:
+        '201':
+          description: Услуга создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /services/{serviceId}:
+    parameters:
+    - $ref: '#/components/parameters/ServiceId'
+    get:
+      tags:
+      - Services
+      summary: Получить услугу
+      description: Возвращает данные конкретной услуги.
+      responses:
+        '200':
+          description: Услуга
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags:
+      - Services
+      summary: Изменить услугу
+      description: Полностью заменяет изменяемые данные услуги.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceInput'
+      responses:
+        '200':
+          description: Услуга изменена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    delete:
+      tags:
+      - Services
+      summary: Логически удалить услугу
+      description: Услуга получает статус `DELETED`; исторические записи сохраняются.
+      responses:
+        '204':
+          description: Услуга удалена
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /barbers:
+    get:
+      tags:
+      - Barbers
+      summary: Получить мастеров филиала
+      description: Возвращает активных сотрудников с ролью BARBER указанного филиала.
+      parameters:
+      - name: branchId
+        in: query
+        required: true
+        description: Идентификатор филиала, мастеров которого требуется получить.
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Список мастеров
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Barber'
+  /barbers/{barberId}:
+    parameters:
+    - $ref: '#/components/parameters/BarberId'
+    get:
+      tags:
+      - Barbers
+      summary: Получить мастера
+      description: Возвращает данные конкретного мастера.
+      responses:
+        '200':
+          description: Мастер
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Barber'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /barbers/{barberId}/available-slots:
+    parameters:
+    - $ref: '#/components/parameters/BarberId'
+    get:
+      tags:
+      - Barbers
+      summary: Получить свободное время мастера на дату
+      description: Свободное время рассчитывается по рабочему графику мастера, длительности выбранной услуги и его записям в статусах `NEW` и `CONFIRMED`.
+      parameters:
+      - name: serviceId
+        in: query
+        required: true
+        description: Идентификатор услуги, длительность которой учитывается при расчёте свободных слотов.
+        schema:
+          type: integer
+          format: int64
+      - name: date
+        in: query
+        required: true
+        description: Дата, для которой рассчитывается доступное время мастера.
+        schema:
+          type: string
+          format: date
+      responses:
+        '200':
+          description: Свободные моменты начала записи
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  format: date-time
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /appointments:
+    get:
+      tags:
+      - Appointments
+      summary: Получить записи с фильтрацией
+      description: Возвращает записи с применением переданных фильтров.
+      parameters:
+      - name: customerId
+        in: query
+        required: false
+        description: Идентификатор профиля клиента, создавшего запись.
+        schema:
+          type: integer
+          format: int64
+      - name: barberId
+        in: query
+        required: false
+        description: Идентификатор мастера, на которого назначена запись.
+        schema:
+          type: integer
+          format: int64
+      - name: branchId
+        in: query
+        required: false
+        description: Идентификатор филиала, в котором проходит запись.
+        schema:
+          type: integer
+          format: int64
+      - name: date
+        in: query
+        required: false
+        description: Дата начала записи.
+        schema:
+          type: string
+          format: date
+      responses:
+        '200':
+          description: Список записей
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Appointment'
+    post:
+      tags:
+      - Appointments
+      summary: Создать бронирование
+      description: |
+        Клиент выбирает филиал, услугу, мастера и время. Профиль клиента,
+        мастер, услуга и филиал должны существовать. Мастер должен иметь роль
+        `BARBER`, а мастер и услуга — относиться к указанному филиалу. Мастер,
+        услуга и филиал должны иметь статус `ACTIVE`. Время должно входить в график мастера и не пересекаться
+        с его записью в статусе `NEW` или `CONFIRMED`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppointmentCreate'
+      responses:
+        '201':
+          description: Запись создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '409':
+          description: Выбранное время пересекается с существующей записью мастера.
+        '422':
+          description: Переданные сущности несовместимы, неактивны либо время не входит в график мастера.
+  /appointments/{appointmentId}:
+    parameters:
+    - $ref: '#/components/parameters/AppointmentId'
+    get:
+      tags:
+      - Appointments
+      summary: Получить запись по идентификатору
+      description: Возвращает подробные данные конкретной записи.
+      responses:
+        '200':
+          description: Запись
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /appointments/{appointmentId}/cancel:
+    parameters:
+    - $ref: '#/components/parameters/AppointmentId'
+    post:
+      tags:
+      - Appointments
+      summary: Отменить запись
+      description: Переводит запись в статус `CANCELLED`; запись физически не удаляется.
+      responses:
+        '200':
+          description: Запись отменена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /appointments/{appointmentId}/status:
+    parameters:
+    - $ref: '#/components/parameters/AppointmentId'
+    put:
+      tags:
+      - Appointments
+      summary: Изменить рабочий статус записи
+      description: Изменяет статус записи в соответствии с допустимыми переходами.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppointmentStatusUpdate'
+      responses:
+        '200':
+          description: Статус изменён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+components:
+  parameters:
+    UserId:
+      name: userId
+      in: path
+      required: true
+      description: Уникальный идентификатор пользователя
+      schema:
+        type: integer
+        format: int64
+    CustomerId:
+      name: customerId
+      in: path
+      required: true
+      description: Уникальный идентификатор профиля клиента
+      schema:
+        type: integer
+        format: int64
+    EmployeeId:
+      name: employeeId
+      in: path
+      required: true
+      description: Уникальный идентификатор сотрудника
+      schema:
+        type: integer
+        format: int64
+    BranchId:
+      name: branchId
+      in: path
+      required: true
+      description: Уникальный идентификатор филиала
+      schema:
+        type: integer
+        format: int64
+    ServiceId:
+      name: serviceId
+      in: path
+      required: true
+      description: Уникальный идентификатор услуги
+      schema:
+        type: integer
+        format: int64
+    BarberId:
+      name: barberId
+      in: path
+      required: true
+      description: Идентификатор сотрудника с ролью BARBER
+      schema:
+        type: integer
+        format: int64
+    AppointmentId:
+      name: appointmentId
+      in: path
+      required: true
+      description: Уникальный идентификатор записи
+      schema:
+        type: integer
+        format: int64
+  responses:
+    NotFound:
+      description: Ресурс не найден
+    Conflict:
+      description: Операция конфликтует с текущим состоянием данных
+    ValidationError:
+      description: Переданные данные не соответствуют бизнес-правилам
+  schemas:
+    User:
+      allOf:
+      - $ref: '#/components/schemas/UserInput'
+      - type: object
+        required:
+        - id
+        properties:
+          id:
+            type: integer
+            format: int64
+    UserInput:
+      type: object
+      required:
+      - name
+      - phone
+      properties:
+        name:
+          type: string
+          description: Имя пользователя для отображения и связи с профилем.
+        phone:
+          type: string
+          description: Контактный номер телефона пользователя.
+        email:
+          type: string
+          format: email
+          nullable: true
+          description: Контактный адрес электронной почты пользователя.
+    Customer:
+      allOf:
+      - $ref: '#/components/schemas/CustomerInput'
+      - type: object
+        required:
+        - id
+        properties:
+          id:
+            type: integer
+            format: int64
+    CustomerInput:
+      type: object
+      required:
+      - userId
+      properties:
+        userId:
+          type: integer
+          format: int64
+          description: Идентификатор пользователя, для которого создаётся профиль клиента.
+    Employee:
+      allOf:
+      - $ref: '#/components/schemas/EmployeeInput'
+      - type: object
+        required:
+        - id
+        properties:
+          id:
+            type: integer
+            format: int64
+    EmployeeInput:
+      type: object
+      required:
+      - userId
+      - role
+      properties:
+        userId:
+          type: integer
+          format: int64
+          description: Идентификатор пользователя, для которого создаётся профиль работы в филиале.
+        role:
+          type: string
+          enum:
+          - BARBER
+          - MANAGER
+          - ADMIN
+          description: Внутренняя функциональная роль сотрудника.
+        branchId:
+          type: integer
+          format: int64
+          nullable: true
+          description: Идентификатор филиала; обязателен для BARBER и MANAGER.
+        specialization:
+          type: string
+          nullable: true
+          description: Краткая специализация; применяется для BARBER.
+        workDays:
+          type: array
+          description: Дни недели, в которые работает мастер; заполняются для BARBER.
+          items:
+            type: string
+            enum:
+            - MONDAY
+            - TUESDAY
+            - WEDNESDAY
+            - THURSDAY
+            - FRIDAY
+            - SATURDAY
+            - SUNDAY
+        workStartTime:
+          type: string
+          format: time
+          nullable: true
+          description: Время начала рабочего дня мастера.
+        workEndTime:
+          type: string
+          format: time
+          nullable: true
+          description: Время окончания рабочего дня мастера.
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - INACTIVE
+          default: ACTIVE
+          description: Состояние профиля сотрудника; логическое удаление выполняется через DELETE.
+    Branch:
+      allOf:
+      - $ref: '#/components/schemas/BranchInput'
+      - type: object
+        required:
+        - id
+        properties:
+          id:
+            type: integer
+            format: int64
+    BranchInput:
+      type: object
+      required:
+      - name
+      - address
+      - phone
+      properties:
+        name:
+          type: string
+          example: Барбершоп на Тверской
+          description: Название филиала.
+        address:
+          type: string
+          description: Почтовый адрес филиала.
+        phone:
+          type: string
+          description: Контактный номер телефона филиала.
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - INACTIVE
+          default: ACTIVE
+          description: Состояние филиала; логическое удаление выполняется через DELETE.
+    Service:
+      allOf:
+      - $ref: '#/components/schemas/ServiceInput'
+      - type: object
+        required:
+        - id
+        properties:
+          id:
+            type: integer
+            format: int64
+    ServiceInput:
+      type: object
+      required:
+      - branchId
+      - name
+      - price
+      - durationMinutes
+      properties:
+        branchId:
+          type: integer
+          format: int64
+          description: Идентификатор филиала, в каталоге которого доступна услуга.
+        name:
+          type: string
+          example: Мужская стрижка
+          description: Наименование услуги.
+        description:
+          type: string
+          nullable: true
+          description: Краткое описание состава услуги.
+        price:
+          type: number
+          format: decimal
+          minimum: 0
+          description: Текущая стоимость услуги.
+        durationMinutes:
+          type: integer
+          minimum: 1
+          example: 60
+          description: Текущая продолжительность услуги в минутах.
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - INACTIVE
+          default: ACTIVE
+          description: Состояние доступности услуги; логическое удаление выполняется через DELETE.
+    Barber:
+      type: object
+      required:
+      - id
+      - userId
+      - name
+      - branchId
+      - status
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Идентификатор сотрудника
+        userId:
+          type: integer
+          format: int64
+        name:
+          type: string
+        branchId:
+          type: integer
+          format: int64
+        specialization:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - INACTIVE
+    Appointment:
+      type: object
+      required:
+      - id
+      - customerId
+      - barberId
+      - serviceId
+      - branchId
+      - startsAt
+      - status
+      properties:
+        id:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int64
+          description: Ссылка на профиль клиента
+        barberId:
+          type: integer
+          format: int64
+        serviceId:
+          type: integer
+          format: int64
+        branchId:
+          type: integer
+          format: int64
+        startsAt:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+          - NEW
+          - CONFIRMED
+          - COMPLETED
+          - CANCELLED
+          - NO_SHOW
+          description: 'Допустимые переходы: NEW → CONFIRMED или CANCELLED; CONFIRMED → COMPLETED, CANCELLED или NO_SHOW.'
+    AppointmentCreate:
+      type: object
+      required:
+      - customerId
+      - barberId
+      - serviceId
+      - branchId
+      - startsAt
+      properties:
+        customerId:
+          type: integer
+          format: int64
+          description: Идентификатор профиля клиента, который создаёт запись.
+        barberId:
+          type: integer
+          format: int64
+          description: Идентификатор выбранного мастера.
+        serviceId:
+          type: integer
+          format: int64
+          description: Идентификатор выбранной услуги.
+        branchId:
+          type: integer
+          format: int64
+          description: Идентификатор филиала, в котором будет оказана услуга.
+        startsAt:
+          type: string
+          format: date-time
+          description: Планируемые дата и время начала записи.
+    AppointmentStatusUpdate:
+      type: object
+      required:
+      - status
+      properties:
+        status:
+          type: string
+          enum:
+          - CONFIRMED
+          - COMPLETED
+          - NO_SHOW
+          description: Новый рабочий статус записи.

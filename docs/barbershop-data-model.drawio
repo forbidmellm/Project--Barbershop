@@ -1,0 +1,57 @@
+<mxfile host="app.diagrams.net" agent="Codex">
+  <diagram id="barbershop-data-model" name="Логическая модель данных">
+    <mxGraphModel dx="2054" dy="1137" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="user" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=10;fillColor=none;strokeColor=#000000;fontSize=13;" value="&lt;div style=&quot;font-size:16px;font-weight:bold;text-align:center;&quot;&gt;Пользователь&lt;/div&gt;&lt;hr&gt;&lt;div&gt;Идентификатор&lt;/div&gt;&lt;div&gt;Имя&lt;/div&gt;&lt;div&gt;Телефон&lt;/div&gt;&lt;div&gt;Электронная почта (необязательно)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="155" width="265" x="55" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="customer" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=10;fillColor=none;strokeColor=#000000;fontSize=13;" value="&lt;div style=&quot;font-size:16px;font-weight:bold;text-align:center;&quot;&gt;Клиент&lt;/div&gt;&lt;hr&gt;&lt;div&gt;Идентификатор&lt;/div&gt;&lt;div&gt;Пользователь&lt;/div&gt;" vertex="1">
+          <mxGeometry height="130" width="265" x="55" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="branch" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=10;fillColor=none;strokeColor=#000000;fontSize=13;" value="&lt;div style=&quot;font-size:16px;font-weight:bold;text-align:center;&quot;&gt;Филиал&lt;/div&gt;&lt;hr&gt;&lt;div&gt;Идентификатор&lt;/div&gt;&lt;div&gt;Название&lt;/div&gt;&lt;div&gt;Адрес&lt;/div&gt;&lt;div&gt;Контактный телефон&lt;/div&gt;&lt;div&gt;Статус&lt;/div&gt;" vertex="1">
+          <mxGeometry height="185" width="265" x="492.5" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="employee" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=10;fillColor=none;strokeColor=#000000;fontSize=13;" value="&lt;div style=&quot;font-size:16px;font-weight:bold;text-align:center;&quot;&gt;Сотрудник&lt;/div&gt;&lt;hr&gt;&lt;div&gt;Идентификатор&lt;/div&gt;&lt;div&gt;Пользователь&lt;/div&gt;&lt;div&gt;Роль: мастер / менеджер / администратор&lt;/div&gt;&lt;div&gt;Филиал (необязательно для администратора)&lt;/div&gt;&lt;div&gt;Специализация мастера (необязательно)&lt;/div&gt;&lt;div&gt;Рабочие дни мастера&lt;/div&gt;&lt;div&gt;Начало и окончание рабочего времени&lt;/div&gt;&lt;div&gt;Статус&lt;/div&gt;" vertex="1">
+          <mxGeometry height="290" width="310" x="470" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="service" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=10;fillColor=none;strokeColor=#000000;fontSize=13;" value="&lt;div style=&quot;font-size:16px;font-weight:bold;text-align:center;&quot;&gt;Услуга&lt;/div&gt;&lt;hr&gt;&lt;div&gt;Идентификатор&lt;/div&gt;&lt;div&gt;Филиал&lt;/div&gt;&lt;div&gt;Название&lt;/div&gt;&lt;div&gt;Описание (необязательно)&lt;/div&gt;&lt;div&gt;Стоимость&lt;/div&gt;&lt;div&gt;Продолжительность&lt;/div&gt;&lt;div&gt;Статус&lt;/div&gt;" vertex="1">
+          <mxGeometry height="220" width="265" x="900" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="appointment" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=10;fillColor=none;strokeColor=#000000;fontSize=13;" value="&lt;div style=&quot;font-size:16px;font-weight:bold;text-align:center;&quot;&gt;Запись&lt;/div&gt;&lt;hr&gt;&lt;div&gt;Идентификатор&lt;/div&gt;&lt;div&gt;Клиент&lt;/div&gt;&lt;div&gt;Мастер (сотрудник с ролью BARBER)&lt;/div&gt;&lt;div&gt;Услуга&lt;/div&gt;&lt;div&gt;Филиал&lt;/div&gt;&lt;div&gt;Дата и время начала&lt;/div&gt;&lt;div&gt;Статус&lt;/div&gt;" vertex="1">
+          <mxGeometry height="225" width="290" x="895" y="465" as="geometry" />
+        </mxCell>
+        <mxCell id="e-branch-employee" edge="1" parent="1" source="branch" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startArrow=none;fontSize=11;labelBackgroundColor=#ffffff;" target="employee" value="1 — N&lt;br&gt;место работы">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-branch-service" edge="1" parent="1" source="branch" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startArrow=none;fontSize=11;labelBackgroundColor=#ffffff;" target="service" value="1 — N&lt;br&gt;предоставляет">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-user-employee" edge="1" parent="1" source="user" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startArrow=none;fontSize=11;labelBackgroundColor=#ffffff;" target="employee" value="1 — 0..N&lt;br&gt;работает в филиалах">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-user-customer" edge="1" parent="1" source="user" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startArrow=none;fontSize=11;labelBackgroundColor=#ffffff;" target="customer" value="1 — 0..1&lt;br&gt;связан с профилем клиента">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-customer-appointment" edge="1" parent="1" source="customer" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startArrow=none;fontSize=11;labelBackgroundColor=#ffffff;" target="appointment" value="1 — N&lt;br&gt;создаёт">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-employee-appointment" edge="1" parent="1" source="employee" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startArrow=none;fontSize=11;labelBackgroundColor=#ffffff;" target="appointment" value="1 — N&lt;br&gt;выполняет как мастер">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-service-appointment" edge="1" parent="1" source="service" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startArrow=none;fontSize=11;labelBackgroundColor=#ffffff;" target="appointment" value="1 — N&lt;br&gt;включена в">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-branch-appointment" edge="1" parent="1" source="branch" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startArrow=none;fontSize=11;labelBackgroundColor=#ffffff;" target="appointment" value="1 — N&lt;br&gt;место оказания">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1270" y="112.5" />
+              <mxPoint x="1270" y="577.5" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
